@@ -1,0 +1,239 @@
+:root {
+    --primary: #6c5ce7;
+    --holiday: #eb4d4b;
+    --bg: #f0f2f5;
+    --chat-bg: #ffffff;
+    --memo-color: #2ecc71;
+    --delete-color: #ff7675;
+}
+
+body {
+    background-color: var(--bg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding-bottom: 85px;
+}
+
+.calendar-card {
+    background: white;
+    width: 94%;
+    max-width: 350px;
+    padding: 12px 6px;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    margin-top: 10px;
+    overflow: hidden;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding: 0 10px;
+}
+
+#monthDisplay {
+    margin: 0;
+    font-size: 1rem;
+    color: #333;
+}
+
+.nav-btn {
+    border: none;
+    background: none;
+    font-size: 1rem;
+    cursor: pointer;
+    color: var(--primary);
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+}
+
+.day-name {
+    font-size: 0.6rem;
+    color: #bbb;
+    text-align: center;
+    font-weight: bold;
+    padding-bottom: 6px;
+}
+
+.date-cell {
+    aspect-ratio: 1 / 1.1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 3px;
+    font-size: 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    box-sizing: border-box;
+    min-height: 45px;
+}
+
+.today {
+    background: var(--primary) !important;
+    color: white !important;
+    font-weight: bold;
+}
+
+.sun, .is-holiday { color: var(--holiday); }
+.sat { color: #0984e3; }
+
+.memo-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin-top: 1px;
+    overflow: hidden;
+}
+
+.memo-text {
+    font-size: 0.4rem;
+    color: var(--memo-color);
+    background: rgba(46, 204, 113, 0.12);
+    border-radius: 2px;
+    padding: 0 1px;
+    width: 94%;
+    margin: 0 auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+    line-height: 1.1;
+}
+
+.today .memo-text {
+    color: white;
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.chat-container {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    max-width: 450px;
+    background: var(--chat-bg);
+    padding: 12px;
+    box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.05);
+    border-radius: 18px 18px 0 0;
+    display: flex;
+    gap: 8px;
+    box-sizing: border-box;
+    z-index: 200;
+}
+
+#chatInput {
+    flex: 1;
+    border: 1px solid #eee;
+    border-radius: 20px;
+    padding: 8px 15px;
+    outline: none;
+    font-size: 14px;
+    background: #f9f9f9;
+}
+
+.chat-send-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+#modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    justify-content: center;
+    align-items: center;
+    z-index: 300;
+}
+
+.modal-content {
+    background: white;
+    width: 85%;
+    max-width: 320px;
+    padding: 20px;
+    border-radius: 18px;
+}
+
+#dateTitle {
+    font-size: 0.9rem;
+    margin: 0 0 15px 0;
+    color: #666;
+}
+
+.memo-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+    margin-bottom: 5px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+}
+
+.item-delete-btn {
+    background: var(--delete-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 1;
+}
+
+.add-row {
+    display: flex;
+    gap: 5px;
+    margin-top: 15px;
+}
+
+#newMemoInput {
+    flex: 1;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 0.9rem;
+}
+
+.add-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 0 15px;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.close-btn {
+    background: #eee;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    width: 100%;
+    font-size: 0.9rem;
+    margin-top: 15px;
+}
