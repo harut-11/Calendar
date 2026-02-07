@@ -138,7 +138,7 @@
     </div>
 
     <div class="chat-container">
-        <input type="text" id="chatInput" placeholder="3月11日 塾">
+        <input type="text" id="chatInput" placeholder="例：2月11日から17日までバイト、3月11日 塾">
         <button class="chat-send-btn" onclick="handleChat()">✈</button>
     </div>
 
@@ -250,7 +250,7 @@
                 localStorage.setItem(`${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`, title);
                 alert(`${month}/${day}「${title}」を登録！`);
             } else {
-                alert("形式例: 3/11 塾");
+                alert("形式例: 3月11 塾");
                 return;
             }
             input.value = "";
