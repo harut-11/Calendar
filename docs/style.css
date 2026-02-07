@@ -66,7 +66,9 @@ body {
 }
 
 .date-cell {
-    aspect-ratio: 1 / 1.1;
+    /* aspect-ratio をやめて、幅を14.28%（7分の1）に固定 */
+    width: 100%; 
+    min-height: 50px; /* 高さを確保 */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -75,9 +77,15 @@ body {
     font-size: 0.8rem;
     border-radius: 6px;
     cursor: pointer;
-    position: relative;
-    box-sizing: border-box;
-    min-height: 45px;
+    box-sizing: border-box; /* パディングを含めた計算にする */
+}
+
+/* 親要素のグリッドもしっかり7等分に指定 */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    width: 100%;
 }
 
 .today {
@@ -236,4 +244,5 @@ body {
     width: 100%;
     font-size: 0.9rem;
     margin-top: 15px;
+
 }
