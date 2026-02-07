@@ -1,192 +1,243 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Star Dodger Mobile</title>
-<style>
-html,body{
-  margin:0;
-  padding:0;
-  height:100%;
-  background:radial-gradient(circle at center, #000814, #001427);
-  overflow:hidden;
-  font-family:system-ui, sans-serif;
-  color:#fff;
-  -webkit-touch-callout:none;
-  -webkit-user-select:none;
-  user-select:none;
-}
-#gameCanvas{
-  display:block;
-  margin:0 auto;
-  background:transparent;
-  touch-action:none;
-}
-#ui{
-  position:fixed;
-  top:0;
-  left:0;
-  right:0;
-  text-align:center;
-  padding:10px;
-  background:rgba(0,0,0,0.3);
-  font-size:16px;
-  z-index:10;
-}
-#startBtn{
-  background:#ffd86b;
-  border:none;
-  border-radius:10px;
-  padding:10px 20px;
-  font-size:18px;
-  font-weight:bold;
-  color:#001427;
-}
-#info{
-  font-size:14px;
-  color:#ccc;
-  margin-top:4px;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Voice Calendar</title>
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --holiday: #eb4d4b;
+            --bg: #f0f2f5;
+        }
+
+        body {
+            background-color: var(--bg);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* レスポンシブ設計: スマホなら全幅、PCなら400px */
+        .calendar-card {
+            background: white;
+            width: 95%;
+            max-width: 400px;
+            padding: 20px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden; /* アニメーション用 */
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        /* スライドアニメーションのコンテナ */
+        #calendarContainer {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .slide-left { transform: translateX(-20px); opacity: 0; }
+        .slide-right { transform: translateX(20px); opacity: 0; }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .day-name { font-size: 0.7rem; color: #aaa; text-align: center; font-weight: bold; padding-bottom: 10px; }
+
+        .date-cell {
+            aspect-ratio: 1 / 1; /* 正方形を維持 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            position: relative;
+            -webkit-tap-highlight-color: transparent; /* スマホのタップ跡を消す */
+        }
+
+        .today { background: var(--primary) !important; color: white !important; font-weight: bold; }
+        .sun, .is-holiday { color: var(--holiday); }
+        .sat { color: #0984e3; }
+
+        .has-memo::after {
+            content: ''; position: absolute; bottom: 4px; width: 4px; height: 4px;
+            background: #2ecc71; border-radius: 50%;
+        }
+
+        /* モーダル */
+        #modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 100;
+        }
+        .modal-content {
+            background: white; width: 85%; max-width: 320px; padding: 25px; border-radius: 20px;
+        }
+
+        /* 音声入力ボタン */
+        .voice-btn {
+            background: #f1f2f6; border: none; padding: 10px; border-radius: 50%;
+            cursor: pointer; font-size: 1.2rem; margin-bottom: 10px;
+            transition: 0.3s;
+        }
+        .voice-btn.recording { background: #ff7675; color: white; animation: pulse 1s infinite; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        textarea { width: 100%; height: 120px; border-radius: 12px; border: 1px solid #ddd; padding: 10px; box-sizing: border-box; font-size: 1rem; margin-top: 10px;}
+        .btn-row { display: flex; gap: 10px; margin-top: 15px; }
+        .save-btn { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 10px; flex: 2; font-weight: bold; }
+        .close-btn { background: #eee; border: none; padding: 12px; border-radius: 10px; flex: 1; }
+
+    </style>
 </head>
 <body>
-<div id="ui">
-  <div>⭐ <b>Star Dodger Mobile</b></div>
-  <button id="startBtn">START</button>
-  <div id="info">左右スワイプで移動・星を集めて隕石を避けよう！</div>
-</div>
-<canvas id="gameCanvas"></canvas>
 
-<script>
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-let W = window.innerWidth, H = window.innerHeight;
-canvas.width = W; canvas.height = H;
+    <div class="calendar-card">
+        <div class="header">
+            <button onclick="moveMonth(-1)" style="border:none; background:none; font-size:1.2rem; cursor:pointer;">◀</button>
+            <h2 id="monthDisplay" style="margin:0; font-size:1.1rem;"></h2>
+            <button onclick="moveMonth(1)" style="border:none; background:none; font-size:1.2rem; cursor:pointer;">▶</button>
+        </div>
+        <div id="calendarContainer">
+            <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
+    </div>
 
-// プレイヤー設定
-const player = {x:W/2, y:H-80, r:20, color:"#8be9fd", vx:0};
-let score = 0, lives = 3, running = false, asteroids=[], stars=[];
+    <div id="modal">
+        <div class="modal-content">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span id="dateTitle" style="font-weight:bold; color:#666;"></span>
+                <button id="voiceStartBtn" class="voice-btn">🎤</button>
+            </div>
+            <textarea id="memoInput" placeholder="予定を入力、またはマイクで話してください..."></textarea>
+            <div class="btn-row">
+                <button class="close-btn" onclick="closeModal()">戻る</button>
+                <button class="save-btn" onclick="saveMemo()">保存</button>
+            </div>
+        </div>
+    </div>
 
-// 音（モバイル対応はシンプル化）
-function beep(){ if(window.navigator.vibrate) window.navigator.vibrate(20); }
+    <script>
+        let displayDate = new Date();
+        let holidays = {};
+        let selectedDateKey = "";
 
-// エンティティ生成
-function spawnAsteroid(){
-  asteroids.push({x:Math.random()*W, y:-40, r:Math.random()*20+15, vy:2+Math.random()*3});
-}
-function spawnStar(){
-  stars.push({x:Math.random()*W, y:-20, r:10, vy:2});
-}
+        // 1. 祝日取得
+        async function fetchHolidays() {
+            try {
+                const res = await fetch('https://holidays-jp.github.io/api/v1/date.json');
+                holidays = await res.json();
+            } finally { renderCalendar(); }
+        }
 
-// 衝突判定
-function hit(a,b){let dx=a.x-b.x,dy=a.y-b.y;return dx*dx+dy*dy<(a.r+b.r)*(a.r+b.r);}
+        // 2. カレンダー描画
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const monthDisplay = document.getElementById('monthDisplay');
+            grid.innerHTML = '';
 
-// 操作（タッチ＆スワイプ）
-let touchX=null;
-canvas.addEventListener("touchstart",e=>{
-  touchX=e.touches[0].clientX;
-});
-canvas.addEventListener("touchmove",e=>{
-  const x=e.touches[0].clientX;
-  const dx=x-touchX;
-  player.x += dx*0.4;
-  touchX=x;
-});
-canvas.addEventListener("touchend",()=>{touchX=null;});
+            const year = displayDate.getFullYear();
+            const month = displayDate.getMonth();
+            monthDisplay.innerText = `${year}年 ${month + 1}月`;
 
-// メインループ
-let last=0, asteroidTimer=0, starTimer=0;
-function loop(t){
-  if(!running) return;
-  const dt=(t-last)/16.6; last=t;
-  asteroidTimer+=dt; starTimer+=dt;
+            ["日","月","火","水","木","金","土"].forEach((d, i) => {
+                const el = document.createElement('div');
+                el.className = `day-name ${i===0?'sun':i===6?'sat':''}`;
+                el.innerText = d;
+                grid.appendChild(el);
+            });
 
-  if(asteroidTimer>20){spawnAsteroid(); asteroidTimer=0;}
-  if(starTimer>60){spawnStar(); starTimer=0;}
+            const firstDay = new Date(year, month, 1).getDay();
+            const lastDate = new Date(year, month + 1, 0).getDate();
+            for(let i=0; i < firstDay; i++) grid.appendChild(document.createElement('div'));
 
-  // 移動
-  player.x=Math.max(player.r,Math.min(W-player.r,player.x));
+            const todayStr = new Date().toISOString().split('T')[0];
 
-  // 更新
-  for(let a of asteroids){a.y+=a.vy*dt;}
-  for(let s of stars){s.y+=s.vy*dt;}
+            for(let i=1; i <= lastDate; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'date-cell';
+                const dateKey = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+                
+                cell.innerText = i;
+                if (new Date(year, month, i).getDay() === 0) cell.classList.add('sun');
+                if (new Date(year, month, i).getDay() === 6) cell.classList.add('sat');
+                if (holidays[dateKey]) cell.classList.add('is-holiday');
+                if (dateKey === todayStr) cell.classList.add('today');
+                if (localStorage.getItem(dateKey)) cell.classList.add('has-memo');
 
-  // 衝突処理
-  for(let i=asteroids.length-1;i>=0;i--){
-    const a=asteroids[i];
-    if(hit(a,player)){asteroids.splice(i,1);lives--;beep();}
-    if(a.y>H+50) asteroids.splice(i,1);
-  }
-  for(let i=stars.length-1;i>=0;i--){
-    const s=stars[i];
-    if(hit(s,player)){stars.splice(i,1);score+=10;}
-    if(s.y>H+30) stars.splice(i,1);
-  }
+                cell.onclick = () => openModal(dateKey);
+                grid.appendChild(cell);
+            }
+        }
 
-  if(lives<=0){gameOver();return;}
+        // 3. スライドアニメーション付き月移動
+        function moveMonth(diff) {
+            const container = document.getElementById('calendarContainer');
+            const animationClass = diff > 0 ? 'slide-left' : 'slide-right';
+            
+            container.classList.add(animationClass);
+            
+            setTimeout(() => {
+                displayDate.setMonth(displayDate.getMonth() + diff);
+                renderCalendar();
+                container.classList.remove(animationClass);
+            }, 300);
+        }
 
-  draw();
-  requestAnimationFrame(loop);
-}
+        // 4. 音声入力 (Web Speech API)
+        const voiceBtn = document.getElementById('voiceStartBtn');
+        const memoInput = document.getElementById('memoInput');
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-function draw(){
-  ctx.clearRect(0,0,W,H);
-  // 背景星
-  ctx.fillStyle="rgba(255,255,255,0.05)";
-  for(let i=0;i<60;i++){
-    ctx.fillRect((i*31+Date.now()/50)%W,(i*47+Date.now()/70)%H,1,1);
-  }
-  // 隕石
-  for(const a of asteroids){
-    ctx.beginPath();
-    ctx.arc(a.x,a.y,a.r,0,Math.PI*2);
-    ctx.fillStyle="#888";
-    ctx.fill();
-  }
-  // 星
-  for(const s of stars){
-    ctx.beginPath();
-    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
-    ctx.fillStyle="#ffd86b";
-    ctx.fill();
-  }
-  // プレイヤー
-  ctx.beginPath();
-  ctx.moveTo(player.x,player.y-player.r);
-  ctx.lineTo(player.x+player.r,player.y+player.r);
-  ctx.lineTo(player.x-player.r,player.y+player.r);
-  ctx.closePath();
-  ctx.fillStyle=player.color;
-  ctx.fill();
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'ja-JP';
+            
+            recognition.onstart = () => voiceBtn.classList.add('recording');
+            recognition.onend = () => voiceBtn.classList.remove('recording');
+            recognition.onresult = (event) => {
+                const text = event.results[0][0].transcript;
+                memoInput.value += text;
+            };
 
-  // スコア
-  ctx.fillStyle="#fff";
-  ctx.font="bold 20px sans-serif";
-  ctx.fillText(`Score: ${score}`,10,30);
-  ctx.fillText(`Lives: ${lives}`,W-120,30);
-}
+            voiceBtn.onclick = () => recognition.start();
+        } else {
+            voiceBtn.style.display = 'none'; // 未対応ブラウザでは非表示
+        }
 
-function startGame(){
-  score=0; lives=3; asteroids=[]; stars=[];
-  running=true;
-  last=performance.now();
-  requestAnimationFrame(loop);
-}
+        // モーダル・保存関連
+        function openModal(key) {
+            selectedDateKey = key;
+            document.getElementById('dateTitle').innerText = key;
+            document.getElementById('memoInput').value = localStorage.getItem(key) || "";
+            document.getElementById('modal').style.display = 'flex';
+        }
+        function closeModal() { document.getElementById('modal').style.display = 'none'; }
+        function saveMemo() {
+            const val = memoInput.value.trim();
+            val ? localStorage.setItem(selectedDateKey, val) : localStorage.removeItem(selectedDateKey);
+            closeModal();
+            renderCalendar();
+        }
 
-function gameOver(){
-  running=false;
-  alert(`Game Over!\nスコア: ${score}`);
-}
-
-document.getElementById("startBtn").onclick=()=>{
-  if(!running) startGame();
-};
-window.addEventListener("resize",()=>{
-  W=window.innerWidth;H=window.innerHeight;
-  canvas.width=W;canvas.height=H;
-  player.x=W/2;player.y=H-80;
-});
-</script>
+        fetchHolidays();
+    </script>
 </body>
 </html>
