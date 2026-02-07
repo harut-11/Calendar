@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -11,6 +12,7 @@
             --bg: #f0f2f5;
             --chat-bg: #ffffff;
             --memo-color: #2ecc71;
+            --delete-color: #ff7675;
         }
 
         body {
@@ -24,113 +26,230 @@
             padding-bottom: 85px;
         }
 
-        /* カレンダーカード：横幅を350pxに制限してコンパクト化 */
         .calendar-card {
             background: white;
             width: 94%;
-            max-width: 350px; 
+            max-width: 350px;
             padding: 12px 6px;
             border-radius: 20px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
             margin-top: 10px;
             overflow: hidden;
         }
 
-        .header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 12px;
             padding: 0 10px;
         }
-        
-        #monthDisplay { margin:0; font-size: 1rem; color: #333; }
 
-        .calendar-grid { 
-            display: grid; 
-            grid-template-columns: repeat(7, 1fr); 
-            gap: 1px; 
+        #monthDisplay {
+            margin: 0;
+            font-size: 1rem;
+            color: #333;
         }
 
-        .day-name { 
-            font-size: 0.6rem; 
-            color: #bbb; 
-            text-align: center; 
-            font-weight: bold; 
-            padding-bottom: 6px; 
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
         }
-        
+
+        .day-name {
+            font-size: 0.6rem;
+            color: #bbb;
+            text-align: center;
+            font-weight: bold;
+            padding-bottom: 6px;
+        }
+
         .date-cell {
             aspect-ratio: 1 / 1.1;
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             justify-content: flex-start;
             padding-top: 3px;
-            font-size: 0.8rem; /* 数字を少し小さく */
-            border-radius: 6px; 
-            cursor: pointer; 
+            font-size: 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
             position: relative;
             box-sizing: border-box;
+            min-height: 45px;
         }
-        
-        .today { background: var(--primary) !important; color: white !important; font-weight: bold; }
-        .sun, .is-holiday { color: var(--holiday); }
-        .sat { color: #0984e3; }
 
-        /* 予定テキスト：フォントサイズと余白を最適化 */
+        .today {
+            background: var(--primary) !important;
+            color: white !important;
+            font-weight: bold;
+        }
+
+        .sun,
+        .is-holiday {
+            color: var(--holiday);
+        }
+
+        .sat {
+            color: #0984e3;
+        }
+
+        .memo-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            margin-top: 1px;
+            overflow: hidden;
+        }
+
         .memo-text {
-            font-size: 0.45rem; /* さらに小さく */
+            font-size: 0.4rem;
             color: var(--memo-color);
             background: rgba(46, 204, 113, 0.12);
             border-radius: 2px;
-            padding: 1px 0;
-            margin-top: 1px;
-            width: 92%;
+            padding: 0 1px;
+            width: 94%;
+            margin: 0 auto;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             text-align: center;
             line-height: 1.1;
         }
-        .today .memo-text { color: white; background: rgba(255, 255, 255, 0.25); }
 
-        /* チャット入力欄もバランスを合わせて微調整 */
-        .chat-container {
-            position: fixed; bottom: 0; width: 100%; max-width: 450px;
-            background: var(--chat-bg); padding: 12px;
-            box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
-            border-radius: 18px 18px 0 0; display: flex; gap: 8px; box-sizing: border-box; z-index: 200;
+        .today .memo-text {
+            color: white;
+            background: rgba(255, 255, 255, 0.25);
         }
 
-        #chatInput { 
-            flex: 1; border: 1px solid #eee; border-radius: 20px; 
-            padding: 8px 15px; outline: none; font-size: 14px; 
+        .chat-container {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: 450px;
+            background: var(--chat-bg);
+            padding: 12px;
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.05);
+            border-radius: 18px 18px 0 0;
+            display: flex;
+            gap: 8px;
+            box-sizing: border-box;
+            z-index: 200;
+        }
+
+        #chatInput {
+            flex: 1;
+            border: 1px solid #eee;
+            border-radius: 20px;
+            padding: 8px 15px;
+            outline: none;
+            font-size: 14px;
             background: #f9f9f9;
         }
-        
-        .chat-send-btn { 
-            background: var(--primary); color: white; border: none; 
-            border-radius: 50%; width: 36px; height: 36px; 
-            cursor: pointer; font-size: 16px; flex-shrink: 0;
+
+        .chat-send-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            font-size: 16px;
+            flex-shrink: 0;
         }
 
-        /* モーダル */
-        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); justify-content: center; align-items: center; z-index: 300; }
-        .modal-content { background: white; width: 80%; max-width: 300px; padding: 20px; border-radius: 18px; }
-        textarea { width: 100%; height: 80px; border-radius: 10px; border: 1px solid #ddd; padding: 10px; box-sizing: border-box; font-size: 0.9rem; margin-top: 8px;}
-        .btn-row { display: flex; gap: 8px; margin-top: 12px; }
-        .save-btn { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 8px; flex: 2; font-weight: bold; font-size: 0.9rem; }
-        .close-btn { background: #eee; border: none; padding: 10px; border-radius: 8px; flex: 1; font-size: 0.9rem; }
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
+            z-index: 300;
+        }
+
+        .modal-content {
+            background: white;
+            width: 85%;
+            max-width: 320px;
+            padding: 20px;
+            border-radius: 18px;
+        }
+
+        /* 予定リストのスタイル */
+        .memo-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            margin-bottom: 5px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        .item-delete-btn {
+            background: var(--delete-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            font-size: 12px;
+            line-height: 1;
+        }
+
+        .add-row {
+            display: flex;
+            gap: 5px;
+            margin-top: 15px;
+        }
+
+        #newMemoInput {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 8px;
+            font-size: 0.9rem;
+        }
+
+        .add-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0 15px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .close-btn {
+            background: #eee;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            width: 100%;
+            font-size: 0.9rem;
+            margin-top: 15px;
+        }
     </style>
 </head>
+
 <body>
 
     <div class="calendar-card">
         <div class="header">
-            <button onclick="moveMonth(-1)" style="border:none; background:none; font-size:1rem; cursor:pointer; color:var(--primary)">◀</button>
+            <button onclick="moveMonth(-1)"
+                style="border:none; background:none; font-size:1rem; cursor:pointer; color:var(--primary)">◀</button>
             <h2 id="monthDisplay"></h2>
-            <button onclick="moveMonth(1)" style="border:none; background:none; font-size:1rem; cursor:pointer; color:var(--primary)">▶</button>
+            <button onclick="moveMonth(1)"
+                style="border:none; background:none; font-size:1rem; cursor:pointer; color:var(--primary)">▶</button>
         </div>
         <div id="calendarContainer">
             <div class="calendar-grid" id="calendarGrid"></div>
@@ -138,18 +257,21 @@
     </div>
 
     <div class="chat-container">
-        <input type="text" id="chatInput" placeholder="例：2月11日から17日までバイト、3月11日 塾">
+        <input type="text" id="chatInput" placeholder="例：2/11 10時バイト">
         <button class="chat-send-btn" onclick="handleChat()">✈</button>
     </div>
 
     <div id="modal">
         <div class="modal-content">
-            <h3 id="dateTitle" style="font-size:0.9rem; margin:0; color:#666;"></h3>
-            <textarea id="memoInput"></textarea>
-            <div class="btn-row">
-                <button class="close-btn" onclick="closeModal()">戻る</button>
-                <button class="save-btn" onclick="saveMemo()">保存</button>
+            <h3 id="dateTitle" style="font-size:0.9rem; margin:0 0 15px 0; color:#666;"></h3>
+            <div id="memoList"></div>
+
+            <div class="add-row">
+                <input type="text" id="newMemoInput" placeholder="新しい予定を追加">
+                <button class="add-btn" onclick="addNewMemo()">追加</button>
             </div>
+
+            <button class="close-btn" onclick="closeModal()">閉じる</button>
         </div>
     </div>
 
@@ -173,23 +295,23 @@
             const month = displayDate.getMonth();
             monthDisplay.innerText = `${year}年 ${month + 1}月`;
 
-            ["日","月","火","水","木","金","土"].forEach((d, i) => {
+            ["日", "月", "火", "水", "木", "金", "土"].forEach((d, i) => {
                 const el = document.createElement('div');
-                el.className = `day-name ${i===0?'sun':i===6?'sat':''}`;
+                el.className = `day-name ${i === 0 ? 'sun' : i === 6 ? 'sat' : ''}`;
                 el.innerText = d;
                 grid.appendChild(el);
             });
 
             const firstDay = new Date(year, month, 1).getDay();
             const lastDate = new Date(year, month + 1, 0).getDate();
-            for(let i=0; i < firstDay; i++) grid.appendChild(document.createElement('div'));
+            for (let i = 0; i < firstDay; i++) grid.appendChild(document.createElement('div'));
 
             const todayStr = new Date().toISOString().split('T')[0];
-            for(let i=1; i <= lastDate; i++) {
+            for (let i = 1; i <= lastDate; i++) {
                 const cell = document.createElement('div');
                 cell.className = 'date-cell';
-                const dateKey = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
-                
+                const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+
                 const dateNum = document.createElement('span');
                 dateNum.innerText = i;
                 cell.appendChild(dateNum);
@@ -199,34 +321,43 @@
                 if (holidays[dateKey]) cell.classList.add('is-holiday');
                 if (dateKey === todayStr) cell.classList.add('today');
 
-                const memo = localStorage.getItem(dateKey);
-                if (memo) {
-                    const memoEl = document.createElement('div');
-                    memoEl.className = 'memo-text';
-                    memoEl.innerText = memo;
-                    cell.appendChild(memoEl);
+                const memosJson = localStorage.getItem(dateKey);
+                if (memosJson) {
+                    const memos = JSON.parse(memosJson);
+                    const container = document.createElement('div');
+                    container.className = 'memo-container';
+                    memos.slice(0, 3).forEach(m => {
+                        const memoEl = document.createElement('div');
+                        memoEl.className = 'memo-text';
+                        memoEl.innerText = m;
+                        container.appendChild(memoEl);
+                    });
+                    cell.appendChild(container);
                 }
-
                 cell.onclick = () => openModal(dateKey);
                 grid.appendChild(cell);
             }
         }
 
         function moveMonth(diff) {
-            const container = document.getElementById('calendarContainer');
-            container.classList.add(diff > 0 ? 'slide-left' : 'slide-right');
-            setTimeout(() => {
-                displayDate.setMonth(displayDate.getMonth() + diff);
-                renderCalendar();
-                container.classList.remove('slide-left', 'slide-right');
-            }, 300);
+            displayDate.setMonth(displayDate.getMonth() + diff);
+            renderCalendar();
+        }
+
+        function addMemoToDate(key, text) {
+            let memos = [];
+            const existing = localStorage.getItem(key);
+            if (existing) memos = JSON.parse(existing);
+            memos.push(text);
+            localStorage.setItem(key, JSON.stringify(memos));
         }
 
         function handleChat() {
             const input = document.getElementById('chatInput');
             const text = input.value;
-            if(!text) return;
+            if (!text) return;
 
+            const isDeleteRequest = text.includes("消し") || text.includes("削除") || text.includes("クリア");
             const rangeMatch = text.match(/(\d{1,2})[月/](\d{1,2})日?.*(?:から|〜|~|-)(?:(\d{1,2})[月/])?(\d{1,2})日?(.*)/);
             const singleMatch = text.match(/(\d{1,2})[月/](\d{1,2})日?\s*(.*)/);
             const year = displayDate.getFullYear();
@@ -236,22 +367,19 @@
                 const startDay = parseInt(rangeMatch[2]);
                 const endMonth = rangeMatch[3] ? parseInt(rangeMatch[3]) : month;
                 const endDay = parseInt(rangeMatch[4]);
-                let title = rangeMatch[5].replace(/[まで|は|を|に|が|予定|入れ|て|ください|です|ます]/g, "").trim() || "予定";
-
                 for (let d = startDay; d <= endDay; d++) {
-                    const key = `${year}-${String(endMonth).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-                    localStorage.setItem(key, title);
+                    const key = `${year}-${String(endMonth).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                    if (isDeleteRequest) localStorage.removeItem(key);
+                    else addMemoToDate(key, rangeMatch[5].replace(/[まで|は|を|に|が|予定|入れ|て|ください|です|ます]/g, "").trim() || "予定");
                 }
-                alert(`${endMonth}/${startDay}〜${endDay}「${title}」を登録！`);
+                alert(`${endMonth}/${startDay}〜${endDay} ${isDeleteRequest ? '削除完了' : '追加しました'}`);
             } else if (singleMatch) {
                 const month = parseInt(singleMatch[1]);
                 const day = parseInt(singleMatch[2]);
-                let title = singleMatch[3].replace(/[は|を|に|が|予定|入れ|て|ください|です|ます]/g, "").trim() || "予定";
-                localStorage.setItem(`${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`, title);
-                alert(`${month}/${day}「${title}」を登録！`);
-            } else {
-                alert("形式例: 3月11 塾");
-                return;
+                const key = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                if (isDeleteRequest) localStorage.removeItem(key);
+                else addMemoToDate(key, singleMatch[3].replace(/[は|を|に|が|予定|入れ|て|ください|です|ます]/g, "").trim() || "予定");
+                alert(`${month}/${day} ${isDeleteRequest ? '削除完了' : '追加しました'}`);
             }
             input.value = "";
             renderCalendar();
@@ -260,18 +388,58 @@
         function openModal(key) {
             selectedDateKey = key;
             document.getElementById('dateTitle').innerText = key;
-            document.getElementById('memoInput').value = localStorage.getItem(key) || "";
+            updateMemoList();
             document.getElementById('modal').style.display = 'flex';
         }
-        function closeModal() { document.getElementById('modal').style.display = 'none'; }
-        function saveMemo() {
-            const val = document.getElementById('memoInput').value.trim();
-            val ? localStorage.setItem(selectedDateKey, val) : localStorage.removeItem(selectedDateKey);
-            closeModal();
+
+        // 個別の予定を表示し、削除ボタンを付ける
+        function updateMemoList() {
+            const listContainer = document.getElementById('memoList');
+            listContainer.innerHTML = '';
+            const existing = localStorage.getItem(selectedDateKey);
+            if (existing) {
+                const memos = JSON.parse(existing);
+                memos.forEach((memo, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'memo-list-item';
+                    item.innerHTML = `
+                        <span>${memo}</span>
+                        <button class="item-delete-btn" onclick="deleteIndividualMemo(${index})">×</button>
+                    `;
+                    listContainer.appendChild(item);
+                });
+            } else {
+                listContainer.innerHTML = '<p style="color:#ccc; font-size:0.8rem; text-align:center;">予定はありません</p>';
+            }
+        }
+
+        function addNewMemo() {
+            const input = document.getElementById('newMemoInput');
+            const val = input.value.trim();
+            if (val) {
+                addMemoToDate(selectedDateKey, val);
+                input.value = '';
+                updateMemoList();
+                renderCalendar();
+            }
+        }
+
+        function deleteIndividualMemo(index) {
+            let memos = JSON.parse(localStorage.getItem(selectedDateKey));
+            memos.splice(index, 1);
+            if (memos.length > 0) {
+                localStorage.setItem(selectedDateKey, JSON.stringify(memos));
+            } else {
+                localStorage.removeItem(selectedDateKey);
+            }
+            updateMemoList();
             renderCalendar();
         }
+
+        function closeModal() { document.getElementById('modal').style.display = 'none'; }
 
         fetchHolidays();
     </script>
 </body>
+
 </html>
