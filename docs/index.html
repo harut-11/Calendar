@@ -26,60 +26,39 @@
             /* チャット欄と被らないよう少し広めに */
         }
 
-        /* 1. カードの横幅と余白を微調整 */
-        .calendar-card {
-            background: white;
-            width: 92%;
-            /* 95%から少し小さく */
-            max-width: 400px;
-            padding: 15px 10px;
-            /* 左右の余白を削って横幅を確保 */
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            margin-top: 15px;
-            overflow: hidden;
-        }
+        /* カレンダーカード自体の横幅と余白をさらに絞る */
+    .calendar-card {
+        background: white;
+        width: 96%;        /* 画面端に寄せる */
+        max-width: 380px;  /* PCでも大きすぎないサイズ */
+        padding: 15px 5px; /* 左右のパディングを5pxまで最小化 */
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        margin-top: 15px;
+        overflow: hidden;
+    }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
+    /* マス目の間隔を「1px」にして横幅を最大限に確保 */
+    .calendar-grid { 
+        display: grid; 
+        grid-template-columns: repeat(7, 1fr); 
+        gap: 1px; /* 隙間を極限まで狭める */
+    }
 
-        /* 2. マス目の間隔を狭くする */
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 2px;
-            /* 5pxから2pxに。これで横幅を稼ぐ */
-        }
-
-        /* 3. 曜日の文字サイズを少し小さく */
-        .day-name {
-            font-size: 0.65rem;
-            color: #aaa;
-            text-align: center;
-            font-weight: bold;
-            padding-bottom: 8px;
-        }
-
-        /* 4. マス目自体のサイズとパディングを調整 */
-        .date-cell {
-            aspect-ratio: 1 / 1.1;
-            /* 少しだけ縦長にして文字を入りやすく */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            padding-top: 4px;
-            font-size: 0.9rem;
-            /* 数字を少し小さく */
-            border-radius: 8px;
-            cursor: pointer;
-            position: relative;
-            box-sizing: border-box;
-        }
+    /* 日付セルのパディングを調整 */
+    .date-cell {
+        aspect-ratio: 1 / 1.1;
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        justify-content: flex-start;
+        padding-top: 4px;
+        font-size: 0.85rem; /* 数字をわずかに小さく */
+        border-radius: 6px; 
+        cursor: pointer; 
+        position: relative;
+        box-sizing: border-box;
+    }
 
         .today {
             background: var(--primary) !important;
@@ -382,3 +361,4 @@
 </body>
 
 </html>
+
