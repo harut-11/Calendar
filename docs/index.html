@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,87 +22,207 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            padding-bottom: 80px;
+            padding-bottom: 90px;
+            /* チャット欄と被らないよう少し広めに */
         }
 
+        /* 1. カードの横幅と余白を微調整 */
         .calendar-card {
             background: white;
-            width: 95%;
+            width: 92%;
+            /* 95%から少し小さく */
             max-width: 400px;
-            padding: 20px;
-            border-radius: 24px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            margin-top: 20px;
+            padding: 15px 10px;
+            /* 左右の余白を削って横幅を確保 */
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            margin-top: 15px;
             overflow: hidden;
         }
 
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        #calendarContainer { transition: transform 0.3s ease, opacity 0.3s ease; }
-        .slide-left { transform: translateX(-20px); opacity: 0; }
-        .slide-right { transform: translateX(20px); opacity: 0; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
 
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
-        .day-name { font-size: 0.7rem; color: #aaa; text-align: center; font-weight: bold; padding-bottom: 10px; }
-        
+        /* 2. マス目の間隔を狭くする */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            /* 5pxから2pxに。これで横幅を稼ぐ */
+        }
+
+        /* 3. 曜日の文字サイズを少し小さく */
+        .day-name {
+            font-size: 0.65rem;
+            color: #aaa;
+            text-align: center;
+            font-weight: bold;
+            padding-bottom: 8px;
+        }
+
+        /* 4. マス目自体のサイズとパディングを調整 */
         .date-cell {
-            aspect-ratio: 1 / 1;
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: flex-start; /* 上詰めに変更 */
-            padding-top: 5px;
-            font-size: 1rem; 
-            border-radius: 12px; 
-            cursor: pointer; 
+            aspect-ratio: 1 / 1.1;
+            /* 少しだけ縦長にして文字を入りやすく */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 4px;
+            font-size: 0.9rem;
+            /* 数字を少し小さく */
+            border-radius: 8px;
+            cursor: pointer;
             position: relative;
             box-sizing: border-box;
         }
-        
-        .today { background: var(--primary) !important; color: white !important; font-weight: bold; }
-        .sun, .is-holiday { color: var(--holiday); }
-        .sat { color: #0984e3; }
 
-        /* 予定の文字を表示するスタイル */
+        .today {
+            background: var(--primary) !important;
+            color: white !important;
+            font-weight: bold;
+        }
+
+        .sun,
+        .is-holiday {
+            color: var(--holiday);
+        }
+
+        .sat {
+            color: #0984e3;
+        }
+
+        /* 5. 予定の文字をスマホで見やすく */
         .memo-text {
-            font-size: 0.55rem;
+            font-size: 0.5rem;
+            /* 0.55から0.5へ */
             color: var(--memo-color);
-            background: rgba(46, 204, 113, 0.1);
-            border-radius: 4px;
-            padding: 1px 3px;
-            margin-top: 2px;
-            width: 90%;
+            background: rgba(46, 204, 113, 0.12);
+            border-radius: 3px;
+            padding: 1px 2px;
+            margin-top: 1px;
+            width: 95%;
+            /* 横幅いっぱい使う */
             white-space: nowrap;
             overflow: hidden;
-            text-overflow: ellipsis; /* 長い文字を「...」にする */
+            text-overflow: ellipsis;
             text-align: center;
+            line-height: 1;
         }
-        .today .memo-text { color: white; background: rgba(255, 255, 255, 0.2); }
 
+        .today .memo-text {
+            color: white;
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        /* 以下、チャットとモーダルのスタイル（変更なし） */
         .chat-container {
-            position: fixed; bottom: 0; width: 100%; max-width: 500px;
-            background: var(--chat-bg); padding: 15px;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
-            border-radius: 20px 20px 0 0; display: flex; gap: 10px; box-sizing: border-box; z-index: 200;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: 500px;
+            background: var(--chat-bg);
+            padding: 15px;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            gap: 8px;
+            box-sizing: border-box;
+            z-index: 200;
         }
 
-        #chatInput { flex: 1; border: 1px solid #ddd; border-radius: 25px; padding: 10px 20px; outline: none; font-size: 14px; }
-        .chat-send-btn { background: var(--primary); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 18px; }
+        #chatInput {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            padding: 10px 15px;
+            outline: none;
+            font-size: 14px;
+        }
 
-        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 300; }
-        .modal-content { background: white; width: 85%; max-width: 320px; padding: 25px; border-radius: 20px; }
-        textarea { width: 100%; height: 120px; border-radius: 12px; border: 1px solid #ddd; padding: 10px; box-sizing: border-box; font-size: 1rem; margin-top: 10px;}
-        .btn-row { display: flex; gap: 10px; margin-top: 15px; }
-        .save-btn { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 10px; flex: 2; font-weight: bold; }
-        .close-btn { background: #eee; border: none; padding: 12px; border-radius: 10px; flex: 1; }
+        .chat-send-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 300;
+        }
+
+        .modal-content {
+            background: white;
+            width: 85%;
+            max-width: 320px;
+            padding: 25px;
+            border-radius: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .save-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            flex: 2;
+            font-weight: bold;
+        }
+
+        .close-btn {
+            background: #eee;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            flex: 1;
+        }
     </style>
 </head>
+
 <body>
 
     <div class="calendar-card">
         <div class="header">
-            <button onclick="moveMonth(-1)" style="border:none; background:none; font-size:1.2rem; cursor:pointer;">◀</button>
+            <button onclick="moveMonth(-1)"
+                style="border:none; background:none; font-size:1.2rem; cursor:pointer;">◀</button>
             <h2 id="monthDisplay" style="margin:0; font-size:1.1rem;"></h2>
-            <button onclick="moveMonth(1)" style="border:none; background:none; font-size:1.2rem; cursor:pointer;">▶</button>
+            <button onclick="moveMonth(1)"
+                style="border:none; background:none; font-size:1.2rem; cursor:pointer;">▶</button>
         </div>
         <div id="calendarContainer">
             <div class="calendar-grid" id="calendarGrid"></div>
@@ -144,23 +265,23 @@
             const month = displayDate.getMonth();
             monthDisplay.innerText = `${year}年 ${month + 1}月`;
 
-            ["日","月","火","水","木","金","土"].forEach((d, i) => {
+            ["日", "月", "火", "水", "木", "金", "土"].forEach((d, i) => {
                 const el = document.createElement('div');
-                el.className = `day-name ${i===0?'sun':i===6?'sat':''}`;
+                el.className = `day-name ${i === 0 ? 'sun' : i === 6 ? 'sat' : ''}`;
                 el.innerText = d;
                 grid.appendChild(el);
             });
 
             const firstDay = new Date(year, month, 1).getDay();
             const lastDate = new Date(year, month + 1, 0).getDate();
-            for(let i=0; i < firstDay; i++) grid.appendChild(document.createElement('div'));
+            for (let i = 0; i < firstDay; i++) grid.appendChild(document.createElement('div'));
 
             const todayStr = new Date().toISOString().split('T')[0];
-            for(let i=1; i <= lastDate; i++) {
+            for (let i = 1; i <= lastDate; i++) {
                 const cell = document.createElement('div');
                 cell.className = 'date-cell';
-                const dateKey = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
-                
+                const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+
                 // 日付の数字をスパンで追加
                 const dateNum = document.createElement('span');
                 dateNum.innerText = i;
@@ -198,7 +319,7 @@
         function handleChat() {
             const input = document.getElementById('chatInput');
             const text = input.value;
-            if(!text) return;
+            if (!text) return;
 
             // --- 改良版解析ロジック ---
             // 1. 期間（〜から〜まで）のパターン
@@ -217,7 +338,7 @@
                 let title = rangeMatch[5].replace(/[まで|は|を|に|が|予定|入れ|て|ください|です|ます]/g, "").trim() || "予定";
 
                 for (let d = startDay; d <= endDay; d++) {
-                    const key = `${year}-${String(endMonth).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                    const key = `${year}-${String(endMonth).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
                     localStorage.setItem(key, title);
                 }
                 alert(`${endMonth}月${startDay}日〜${endDay}日に「${title}」を登録しました！`);
@@ -228,9 +349,9 @@
                 const day = parseInt(singleMatch[2]);
                 let title = singleMatch[3].replace(/[は|を|に|が|予定|入れ|て|ください|です|ます]/g, "").trim() || "予定";
 
-                const key = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+                const key = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 localStorage.setItem(key, title);
-                
+
                 alert(`${month}月${day}日に「${title}」を登録しました！`);
 
             } else {
@@ -259,4 +380,5 @@
         fetchHolidays();
     </script>
 </body>
+
 </html>
